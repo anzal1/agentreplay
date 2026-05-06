@@ -1,0 +1,57 @@
+{
+  "name": "agentreplay",
+  "version": "0.2.0",
+  "description": "Language-neutral trace protocol and replay harness for production AI agents.",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./adapters/http": "./src/adapters/httpRecorder.js",
+    "./adapters/state": "./src/adapters/stateAdapter.js",
+    "./replay": "./src/replay/runner.js"
+  },
+  "bin": {
+    "agentreplay": "./bin/agentreplay.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "examples",
+    "docs",
+    "public/app.js",
+    "public/console.html",
+    "public/index.html",
+    "public/landing.js",
+    "public/styles.css",
+    "traces/billing-bad-run.json",
+    "traces/billing-fixed-run.json",
+    "traces/crm-bad-run.json",
+    "traces/crm-fixed-run.json",
+    "fixtures",
+    "sdk/python/agentreplay/__init__.py",
+    "sdk/python/examples/conformance.py",
+    "sdk/go/agentreplay/harness.go",
+    "sdk/go/examples/conformance/main.go",
+    "sdk/go/go.mod",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "demo": "node ./bin/agentreplay.js demo",
+    "serve": "node ./bin/agentreplay.js serve --port 4177",
+    "test": "node --test",
+    "validate": "node ./bin/agentreplay.js validate ./traces/billing-fixed-run.json"
+  },
+  "keywords": [
+    "ai-agents",
+    "evals",
+    "trace-protocol",
+    "replay",
+    "regression",
+    "harness"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  }
+}

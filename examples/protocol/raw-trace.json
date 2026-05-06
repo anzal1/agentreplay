@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "agentreplay.trace.v1",
+  "traceId": "tr_raw_protocol_conformance",
+  "project": "raw-protocol",
+  "agent": {
+    "name": "custom-http-bot",
+    "language": "raw-json"
+  },
+  "startedAt": "2026-01-01T00:00:00.000Z",
+  "endedAt": "2026-01-01T00:00:01.000Z",
+  "replayMismatches": [],
+  "toolManifest": [
+    {
+      "name": "crm.updateLead",
+      "description": "Update one CRM lead"
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_0001",
+      "type": "user_input",
+      "ts": "2026-01-01T00:00:00.000Z",
+      "input": {
+        "message": "update lead_1 after approval"
+      }
+    },
+    {
+      "id": "evt_0002",
+      "type": "tool_call",
+      "ts": "2026-01-01T00:00:00.500Z",
+      "tool": "crm.updateLead",
+      "args": {
+        "leadId": "lead_1"
+      },
+      "argHash": "61768bbec5c259154e0b662618bd27b3e26440985fc281b4b0f2e0bdbeccbc42",
+      "response": {
+        "ok": true
+      },
+      "responseHash": "4062edaf750fb8074e7e83e0c9028c94e32468a8b6f1614774328ef045150f93",
+      "approval": {
+        "status": "approved",
+        "by": "policy.crm_write"
+      },
+      "sideEffects": [
+        {
+          "type": "crm.lead.updated",
+          "leadId": "lead_1"
+        }
+      ],
+      "durationMs": 1
+    },
+    {
+      "id": "evt_0003",
+      "type": "final_output",
+      "ts": "2026-01-01T00:00:01.000Z",
+      "output": {
+        "status": "done"
+      }
+    }
+  ],
+  "expectedOutcome": {
+    "assertions": [
+      {
+        "type": "tool_called",
+        "tool": "crm.updateLead"
+      },
+      {
+        "type": "requires_approval",
+        "tool": "crm.updateLead"
+      },
+      {
+        "type": "response_equals",
+        "tool": "crm.updateLead",
+        "path": "ok",
+        "value": true
+      },
+      {
+        "type": "max_tool_calls",
+        "tool": "crm.updateLead",
+        "max": 1
+      },
+      {
+        "type": "side_effect_count",
+        "tool": "crm.updateLead",
+        "sideEffectType": "crm.lead.updated",
+        "count": 1
+      }
+    ]
+  },
+  "metadata": {
+    "source": "Hand-written protocol fixture with no SDK dependency"
+  }
+}

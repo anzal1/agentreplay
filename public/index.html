@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AgentReplay — Freeze. Diff. Gate.</title>
+    <meta
+      name="description"
+      content="AgentReplay turns AI-agent production failures into deterministic side-effect regression tests."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:opsz@9..40&family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="site-body">
+    <div class="grain" aria-hidden="true"></div>
+    <header class="site-nav" aria-label="Primary">
+      <a class="brand" href="#top" aria-label="AgentReplay home">
+        <span class="brand-mark">A</span>
+        <span>AgentReplay</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#workflow">Workflow</a>
+        <a href="#proof">Proof</a>
+        <a href="#developers">Developers</a>
+      </nav>
+      <a class="nav-cta" href="/console.html">Console</a>
+    </header>
+
+    <main id="top">
+      <section class="section hero-section" aria-labelledby="hero-title">
+        <div class="hero-trace trace-ribbon" aria-hidden="true"></div>
+        <div class="section-inner hero-grid">
+          <div class="hero-copy reveal">
+            <p class="section-kicker">Agent side-effect regression</p>
+            <h1 id="hero-title">Freeze. Diff. Gate.</h1>
+            <p class="hero-subcopy">
+              Side-effect regression testing for AI agents.
+            </p>
+            <div class="cta-row">
+              <a class="button primary" href="/console.html">
+                <span>Run Demo</span>
+                <span class="button-icon">→</span>
+              </a>
+              <a class="button secondary" href="#proof">
+                <span>View Trace</span>
+                <span class="button-icon">→</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="hero-console reveal delay-1" aria-label="AgentReplay trace console preview">
+            <div class="console-head">
+              <span class="status-dot"></span>
+              <span>Trace captured</span>
+              <span class="chip fail">FAILED 3/6</span>
+              <span class="chip pass">PASSED 6/6</span>
+            </div>
+            <div class="timeline">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="console-grid">
+              <div class="mini-panel">
+                <h3>Tool calls</h3>
+                <div class="call-row ok"><span>stripe.search</span><b>212 ms</b></div>
+                <div class="call-row fail"><span>stripe.refund</span><b>fail</b></div>
+                <div class="call-row ok"><span>hubspot.update</span><b>196 ms</b></div>
+                <div class="call-row fail"><span>gmail.send</span><b>blocked</b></div>
+              </div>
+              <div class="mini-panel diff-panel">
+                <h3>Side-effect diff</h3>
+                <div class="diff-row"><span>refund target</span><b>changed</b></div>
+                <div class="diff-row"><span>email action</span><b>drafted</b></div>
+                <div class="diff-row"><span>CRM update</span><b>verified</b></div>
+                <div class="diff-row"><span>raw email</span><b>redacted</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section problem-section" id="problem" aria-labelledby="problem-title">
+        <div class="broken-trace" aria-hidden="true"></div>
+        <div class="section-inner problem-grid">
+          <div class="section-copy reveal">
+            <p class="section-kicker">The problem</p>
+            <h2 id="problem-title">Production failures should not become folklore.</h2>
+            <p>
+              Freeze the exact run, preserve the state boundary, and turn the incident into a gate.
+            </p>
+          </div>
+          <div class="incident-stack reveal delay-1">
+            <article class="incident-card wrong-refund">
+              <span class="incident-badge">unreproducible</span>
+              <h3>Wrong refund</h3>
+              <dl>
+                <div><dt>Tool</dt><dd>stripe.refund</dd></div>
+                <div><dt>Target</dt><dd>in_original</dd></div>
+                <div><dt>State</dt><dd>changed</dd></div>
+              </dl>
+            </article>
+            <article class="incident-card email-sent">
+              <span class="incident-badge">side effect</span>
+              <h3>Email sent</h3>
+              <dl>
+                <div><dt>Tool</dt><dd>gmail.send</dd></div>
+                <div><dt>Approval</dt><dd>missing</dd></div>
+                <div><dt>Action</dt><dd>delivered</dd></div>
+              </dl>
+            </article>
+            <article class="incident-card crm-drift">
+              <span class="incident-badge">missed approval</span>
+              <h3>CRM drift</h3>
+              <dl>
+                <div><dt>System</dt><dd>HubSpot</dd></div>
+                <div><dt>Order</dt><dd>too early</dd></div>
+                <div><dt>Replay</dt><dd>missing</dd></div>
+              </dl>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section workflow-section" id="workflow" aria-labelledby="workflow-title">
+        <div class="section-inner">
+          <div class="wide-copy reveal">
+            <p class="section-kicker">3 / 8 workflow</p>
+            <h2 id="workflow-title">A release gate built from real incidents.</h2>
+            <p>
+              Capture the production run, compare the candidate, and block regressions before release.
+            </p>
+          </div>
+          <div class="process-rail reveal delay-1">
+            <div class="rail-line" aria-hidden="true"></div>
+            <article class="process-step">
+              <span class="step-index">1</span>
+              <h3>Freeze</h3>
+              <p>Capture the run</p>
+              <code>agentreplay freeze</code>
+            </article>
+            <article class="process-step">
+              <span class="step-index">2</span>
+              <h3>Diff</h3>
+              <p>Compare side effects</p>
+              <code>agentreplay diff</code>
+            </article>
+            <article class="process-step">
+              <span class="step-index">3</span>
+              <h3>Gate</h3>
+              <p>Block regressions</p>
+              <code>agentreplay gate</code>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section proof-section" id="proof" aria-labelledby="proof-title">
+        <div class="section-inner proof-grid">
+          <div class="proof-console reveal">
+            <div class="proof-top">
+              <div class="trace-summary">
+                <h3>Bad trace</h3>
+                <span class="chip fail">FAILED 3/6</span>
+                <ul>
+                  <li class="fail">No PII in logs</li>
+                  <li class="fail">Email sent</li>
+                  <li class="pass">Refund within 24h</li>
+                </ul>
+              </div>
+              <div class="trace-summary">
+                <h3>Fixed trace</h3>
+                <span class="chip pass">PASSED 6/6</span>
+                <ul>
+                  <li class="pass">No PII in logs</li>
+                  <li class="pass">Email drafted</li>
+                  <li class="pass">Refund within 24h</li>
+                </ul>
+              </div>
+            </div>
+            <div class="diff-table">
+              <div class="table-head">
+                <span>Tool diff</span>
+                <span>Side-effect diff</span>
+                <span>Status</span>
+              </div>
+              <div class="table-row highlighted">
+                <span>gmail.send → gmail.draft</span>
+                <span>email side effect removed</span>
+                <b>changed</b>
+              </div>
+              <div class="table-row">
+                <span>stripe.refund</span>
+                <span>refund target changed</span>
+                <b>verified</b>
+              </div>
+              <div class="table-row">
+                <span>hubspot.update</span>
+                <span>order preserved</span>
+                <b>pass</b>
+              </div>
+            </div>
+            <code class="console-command">agentreplay diff bad_trace.json fixed_trace.json</code>
+          </div>
+
+          <div class="section-copy reveal delay-1">
+            <p class="section-kicker">Section 4 / 8</p>
+            <h2 id="proof-title">The incident becomes the test.</h2>
+            <p>
+              Replay the bad run, compare the candidate, and block the regression before release.
+            </p>
+            <a class="button primary" href="/console.html">
+              <span>Inspect proof</span>
+              <span class="button-icon">→</span>
+            </a>
+            <div class="proof-metrics" aria-label="Proof metrics">
+              <span><b>3/6</b> failed checks</span>
+              <span><b>2</b> changes detected</span>
+              <span><b>6/6</b> passing checks</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section integrations-section" id="integrations" aria-labelledby="integrations-title">
+        <div class="section-inner integrations-grid">
+          <div class="section-copy reveal">
+            <p class="section-kicker">5 / 8</p>
+            <h2 id="integrations-title">Wrap the tools your agents already use.</h2>
+            <p>
+              Record inputs, responses, approvals, and side effects without replacing your agent framework.
+            </p>
+          </div>
+          <div class="tool-map reveal delay-1" aria-label="Tool integration map">
+            <div class="map-lines" aria-hidden="true"></div>
+            <div class="tool-node center">AgentReplay<br />Harness</div>
+            <div class="tool-node node-stripe">Stripe</div>
+            <div class="tool-node node-gmail">Gmail</div>
+            <div class="tool-node node-hubspot">HubSpot</div>
+            <div class="tool-node node-github">GitHub</div>
+            <div class="tool-node node-sql">SQL</div>
+            <div class="tool-node node-slack">Slack</div>
+            <div class="tool-node node-api">Internal API</div>
+          </div>
+          <code class="wide-command reveal delay-2">harness.wrapTool('stripe.refund', refundCustomer)</code>
+        </div>
+      </section>
+
+      <section class="section audience-section" aria-labelledby="audience-title">
+        <div class="section-inner audience-grid">
+          <div class="section-copy reveal">
+            <p class="section-kicker">6 / 8</p>
+            <h2 id="audience-title">Built for agents that act.</h2>
+            <p>
+              Billing, support, RevOps, and platform teams need proof before the next release.
+            </p>
+          </div>
+          <div class="usecase-bento reveal delay-1">
+            <article class="usecase-card billing">
+              <span class="usecase-icon">$</span>
+              <h3>Billing Ops</h3>
+              <p>refund gate</p>
+              <div class="mini-ledger">
+                <span>invoice target</span><b class="pass-text">PASS</b>
+                <span>amount check</span><b class="pass-text">PASS</b>
+                <span>email action</span><b class="fail-text">FIXED</b>
+              </div>
+            </article>
+            <article class="usecase-card support">
+              <span class="usecase-icon">✉</span>
+              <h3>Support Automation</h3>
+              <p>draft approval</p>
+              <div class="approval-strip"><span>Approve</span><span>Reject</span></div>
+            </article>
+            <article class="usecase-card platform">
+              <span class="usecase-icon">{ }</span>
+              <h3>AI Platform</h3>
+              <p>CI release gate</p>
+              <div class="gate-meter"><span></span></div>
+            </article>
+            <article class="usecase-card agency">
+              <span class="usecase-icon">∴</span>
+              <h3>Agent Agencies</h3>
+              <p>client proof bundle</p>
+              <div class="bundle-row"><span>Client</span><span>Status</span><span>Tests</span></div>
+              <div class="bundle-row"><span>Northwind</span><b>delivered</b><span>21/24</span></div>
+              <div class="bundle-row"><span>Atlas</span><b>reviewed</b><span>18/18</span></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section devex-section" id="developers" aria-labelledby="devex-title">
+        <div class="section-inner devex-grid">
+          <div class="code-window reveal">
+            <div class="code-tabs"><span>SDK</span><span>CLI</span><b>READY</b></div>
+            <pre><code>import { createHarness } from 'agentreplay'
+
+const harness = createHarness({
+  projectKey: process.env.AGENTREPLAY_PROJECT_KEY,
+  redact: ['pii', 'raw_keys']
+})
+
+const refund = harness.wrapTool(
+  'stripe.refund',
+  refundCustomer
+)</code></pre>
+            <div class="terminal-lines">
+              <code>agentreplay gate traces/billing-bad-run.json <b>PASSED 6/6</b></code>
+              <code>agentreplay diff bad.json fixed.json <b>DIFF 3</b></code>
+            </div>
+          </div>
+          <div class="section-copy reveal delay-1">
+            <p class="section-kicker">Developer experience</p>
+            <h2 id="devex-title">Drop it around the tools. Keep your agent.</h2>
+            <p>
+              AgentReplay works beside your framework: OpenAI Agents, LangGraph, custom MCP servers, or your own loop.
+            </p>
+            <ul class="checklist">
+              <li>No framework rewrite</li>
+              <li>Deterministic gates</li>
+              <li>Redaction by default</li>
+              <li>CI-ready</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section final-section" aria-labelledby="final-title">
+        <div class="final-loop" aria-hidden="true"></div>
+        <div class="section-inner final-inner reveal">
+          <div class="final-seal"><span>✓</span> PASSED 6/6</div>
+          <h2 id="final-title">Ship agents with evidence.</h2>
+          <p>Every side effect frozen. Every fix compared. Every release gated.</p>
+          <div class="cta-row centered">
+            <a class="button primary" href="/console.html">
+              <span>Start Freezing Traces</span>
+              <span class="button-icon">→</span>
+            </a>
+            <a class="button secondary" href="/docs/research/CLAIMS_TESTED.md">
+              <span>Read the Proof</span>
+              <span class="button-icon">→</span>
+            </a>
+          </div>
+          <footer class="site-footer">
+            <span class="footer-mark">A</span>
+            <nav>
+              <a href="/README.md">Docs</a>
+              <a href="https://github.com/">GitHub</a>
+              <a href="/console.html">Demo</a>
+              <a href="mailto:hello@agentreplay.local">Contact</a>
+            </nav>
+          </footer>
+        </div>
+      </section>
+    </main>
+
+    <script src="/landing.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AgentReplay Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:opsz@9..40&family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="console-body">
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Agent Replay Infrastructure</p>
+          <h1>Production traces into regression gates.</h1>
+        </div>
+        <div class="console-actions">
+          <a class="button secondary" href="/">Landing</a>
+          <button id="refresh" type="button">Refresh</button>
+        </div>
+      </header>
+
+      <section class="layout">
+        <aside class="sidebar">
+          <div class="panel-title">Traces</div>
+          <div id="traceList" class="trace-list"></div>
+        </aside>
+
+        <section class="detail">
+          <div id="emptyState" class="empty">Select a trace to inspect tool calls, assertions, and side effects.</div>
+          <article id="traceDetail" class="hidden"></article>
+        </section>
+      </section>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,291 @@
+{
+  "schemaVersion": "agentreplay.trace.v1",
+  "traceId": "tr_2816fc29bfcb46789901",
+  "project": "billing-ops",
+  "agent": {
+    "name": "billing-agent-fixed",
+    "model": "demo-model",
+    "promptHash": "demo"
+  },
+  "startedAt": "2026-05-06T13:10:55.770Z",
+  "endedAt": "2026-05-06T13:10:55.771Z",
+  "replayMismatches": [],
+  "toolManifest": [
+    {
+      "name": "stripe.searchInvoices",
+      "hasSnapshot": false,
+      "hasDiff": false
+    },
+    {
+      "name": "stripe.refund",
+      "description": "Refund a paid Stripe invoice.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "invoiceId",
+          "amount"
+        ],
+        "properties": {
+          "invoiceId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "hasSnapshot": true,
+      "hasDiff": true
+    },
+    {
+      "name": "hubspot.updateDeal",
+      "hasSnapshot": true,
+      "hasDiff": false
+    },
+    {
+      "name": "gmail.send",
+      "hasSnapshot": false,
+      "hasDiff": false
+    },
+    {
+      "name": "gmail.draft",
+      "hasSnapshot": false,
+      "hasDiff": false
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_0001",
+      "type": "user_input",
+      "ts": "2026-05-06T13:10:55.770Z",
+      "input": {
+        "message": "Refund Acme for the duplicate invoice and let Sarah know."
+      }
+    },
+    {
+      "id": "evt_0002",
+      "type": "tool_call",
+      "ts": "2026-05-06T13:10:55.770Z",
+      "tool": "stripe.searchInvoices",
+      "args": {
+        "customer": "Acme"
+      },
+      "argHash": "adc49d5859e99c8425f8c6ec2bb095f052c089f4c21689027f5639e8f2735588",
+      "response": [
+        {
+          "id": "in_acme_original",
+          "customer": "Acme",
+          "contactName": "Sarah",
+          "contactEmail": "[REDACTED]",
+          "amount": 12000,
+          "status": "paid"
+        },
+        {
+          "id": "in_acme_duplicate",
+          "customer": "Acme",
+          "contactName": "Sarah",
+          "contactEmail": "[REDACTED]",
+          "amount": 12000,
+          "status": "paid",
+          "duplicateOf": "in_acme_original"
+        }
+      ],
+      "responseHash": "f1b9ccebed5fd499ae1ce08b844a7e6f95f6515dd52ebbc2b0ef2d5f517a498e",
+      "approval": null,
+      "sideEffects": [],
+      "durationMs": 0
+    },
+    {
+      "id": "evt_0003",
+      "type": "tool_call",
+      "ts": "2026-05-06T13:10:55.770Z",
+      "tool": "stripe.refund",
+      "args": {
+        "invoiceId": "in_acme_duplicate",
+        "amount": 12000
+      },
+      "argHash": "362d8d4684433471fdb1d6b18ed4c8d6d978ef7f3bd26f51bb6b3f8334e63587",
+      "response": {
+        "refundId": "re_in_acme_duplicate",
+        "invoiceId": "in_acme_duplicate",
+        "amount": 12000,
+        "status": "succeeded"
+      },
+      "responseHash": "3e1278188f18358d713c70833a6e36ee33df0aa2c1c5ae345592361d3c57f518",
+      "approval": null,
+      "preState": [
+        {
+          "id": "in_acme_original",
+          "customer": "Acme",
+          "contactName": "Sarah",
+          "contactEmail": "[REDACTED]",
+          "amount": 12000,
+          "status": "paid"
+        },
+        {
+          "id": "in_acme_duplicate",
+          "customer": "Acme",
+          "contactName": "Sarah",
+          "contactEmail": "[REDACTED]",
+          "amount": 12000,
+          "status": "paid",
+          "duplicateOf": "in_acme_original"
+        }
+      ],
+      "postState": [
+        {
+          "id": "in_acme_original",
+          "customer": "Acme",
+          "contactName": "Sarah",
+          "contactEmail": "[REDACTED]",
+          "amount": 12000,
+          "status": "paid"
+        },
+        {
+          "id": "in_acme_duplicate",
+          "customer": "Acme",
+          "contactName": "Sarah",
+          "contactEmail": "[REDACTED]",
+          "amount": 12000,
+          "status": "refunded",
+          "duplicateOf": "in_acme_original",
+          "refundedAmount": 12000
+        }
+      ],
+      "sideEffects": [
+        {
+          "type": "invoice_refunded",
+          "invoiceId": "in_acme_duplicate",
+          "before": {
+            "id": "in_acme_duplicate",
+            "customer": "Acme",
+            "contactName": "Sarah",
+            "contactEmail": "[REDACTED]",
+            "amount": 12000,
+            "status": "paid",
+            "duplicateOf": "in_acme_original"
+          },
+          "after": {
+            "id": "in_acme_duplicate",
+            "customer": "Acme",
+            "contactName": "Sarah",
+            "contactEmail": "[REDACTED]",
+            "amount": 12000,
+            "status": "refunded",
+            "duplicateOf": "in_acme_original",
+            "refundedAmount": 12000
+          }
+        }
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "evt_0004",
+      "type": "tool_call",
+      "ts": "2026-05-06T13:10:55.770Z",
+      "tool": "hubspot.updateDeal",
+      "args": {
+        "customer": "Acme",
+        "note": "Refunded duplicate invoice in_acme_duplicate"
+      },
+      "argHash": "72f1f083f2efa07e36dad107d0dac4ac5ff0185291c7ef2574482e1a7c652f5d",
+      "response": {
+        "customer": "Acme",
+        "status": "updated"
+      },
+      "responseHash": "6fffd0104037e029482cb6be6a3acfddca58cae6f6a7a40278523ec2226886a5",
+      "approval": null,
+      "preState": {},
+      "postState": {
+        "Acme": {
+          "note": "Refunded duplicate invoice in_acme_duplicate",
+          "updatedAt": "demo-clock"
+        }
+      },
+      "sideEffects": [
+        {
+          "type": "state_changed",
+          "beforeHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "afterHash": "258d5049aae4e3080da08d1d2f408cf1e304bd668286f74d36153857986d4bdf"
+        }
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "evt_0005",
+      "type": "tool_call",
+      "ts": "2026-05-06T13:10:55.770Z",
+      "tool": "gmail.draft",
+      "args": {
+        "to": "[REDACTED]",
+        "subject": "Refund ready for review",
+        "body": "The duplicate invoice refund has been prepared. Please review before sending."
+      },
+      "argHash": "8ffb80308ef8402a6a62a086a76475c686b5bd6b5231fa3fd14a6809454ab91a",
+      "response": {
+        "id": "draft_1",
+        "status": "drafted"
+      },
+      "responseHash": "aaf842dac4753d355f0fb57dd5ef92f97591b3e8d7877a4ef05f5f597e280ad6",
+      "approval": null,
+      "sideEffects": [],
+      "durationMs": 0
+    },
+    {
+      "id": "evt_0006",
+      "type": "final_output",
+      "ts": "2026-05-06T13:10:55.770Z",
+      "output": {
+        "status": "needs_approval",
+        "message": "Refunded in_acme_duplicate and drafted email."
+      }
+    }
+  ],
+  "expectedOutcome": {
+    "assertions": [
+      {
+        "type": "tool_order",
+        "name": "refund_before_crm_update",
+        "before": "stripe.refund",
+        "after": "hubspot.updateDeal",
+        "message": "CRM should only be updated after the refund succeeds."
+      },
+      {
+        "type": "tool_not_called",
+        "name": "never_send_email_without_approval",
+        "tool": "gmail.send",
+        "message": "Email must be drafted unless explicit approval exists."
+      },
+      {
+        "type": "tool_called",
+        "name": "draft_customer_email",
+        "tool": "gmail.draft",
+        "message": "Customer email should be drafted for approval."
+      },
+      {
+        "type": "arg_equals",
+        "name": "refund_duplicate_invoice",
+        "tool": "stripe.refund",
+        "path": "invoiceId",
+        "value": "in_acme_duplicate",
+        "message": "Refund should target Acme's duplicate invoice."
+      },
+      {
+        "type": "side_effect_exists",
+        "name": "refund_records_side_effect",
+        "tool": "stripe.refund",
+        "sideEffectType": "invoice_refunded",
+        "message": "Refund tool should record a concrete invoice side effect."
+      },
+      {
+        "type": "redaction_applied",
+        "name": "emails_redacted",
+        "patterns": [
+          "sarah@acme\\.example",
+          "ap\\.sarah@acme\\.example"
+        ],
+        "message": "Trace should not leak raw customer email addresses."
+      }
+    ]
+  }
+}

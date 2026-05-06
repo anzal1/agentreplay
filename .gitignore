@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+*.log
+coverage/
+__pycache__/
+*.pyc
+*.tgz
+public/references/
+traces/latest-demo-result.json
