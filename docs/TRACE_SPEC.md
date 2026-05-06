@@ -68,7 +68,7 @@ Optional fields:
 3. Serialize compact JSON with no extra whitespace.
 4. Hash the UTF-8 serialized bytes with SHA-256.
 
-The Node reference function is `sha256(value)` from `agentreplay`.
+The Node reference function is `sha256(value)` from `@anzalabidi/agentreplay`.
 
 ## Redaction
 

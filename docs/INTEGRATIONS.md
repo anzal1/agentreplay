@@ -7,7 +7,7 @@ The public contract is `agentreplay.trace.v1` JSON. The Node SDK is the referenc
 ## Generic agent tool
 
 ```js
-import { AgentReplayHarness } from "agentreplay";
+import { AgentReplayHarness } from "@anzalabidi/agentreplay";
 
 const harness = new AgentReplayHarness({
   project: "support-ops",

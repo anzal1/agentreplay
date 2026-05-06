@@ -1,5 +1,5 @@
 {
-  "name": "agentreplay",
+  "name": "@anzalabidi/agentreplay",
   "version": "0.2.0-alpha.1",
   "description": "Language-neutral trace protocol and replay harness for production AI agents.",
   "type": "module",
@@ -11,7 +11,7 @@
     "./replay": "./src/replay/runner.js"
   },
   "bin": {
-    "agentreplay": "./bin/agentreplay.js"
+    "agentreplay": "bin/agentreplay.js"
   },
   "files": [
     "bin",

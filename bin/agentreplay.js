@@ -244,8 +244,8 @@ jobs:
             exit 0
           fi
           for trace in "\${traces[@]}"; do
-            npx agentreplay validate "$trace" --json
-            npx agentreplay gate "$trace" --json
+            npx @anzalabidi/agentreplay validate "$trace" --json
+            npx @anzalabidi/agentreplay gate "$trace" --json
           done
 `
     }
