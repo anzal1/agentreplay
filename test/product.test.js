@@ -165,8 +165,8 @@ test("CLI init scaffolds traces and a GitHub Actions gate", async () => {
     await access(join(dir, "traces/gates/.gitkeep"));
     await access(join(dir, "traces/incidents/.gitkeep"));
     const workflow = await readFile(join(dir, ".github/workflows/agentreplay.yml"), "utf8");
-    assert.equal(workflow.includes("npx @anzalabidi/agentreplay validate"), true);
-    assert.equal(workflow.includes("npx @anzalabidi/agentreplay gate"), true);
+    assert.equal(workflow.includes("npx --yes --package @anzalabidi/agentreplay agentreplay validate"), true);
+    assert.equal(workflow.includes("npx --yes --package @anzalabidi/agentreplay agentreplay gate"), true);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

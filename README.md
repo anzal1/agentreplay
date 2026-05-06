@@ -32,7 +32,7 @@ The resulting trace becomes a regression artifact that can run in CI.
 npm test
 npm run demo
 npm install @anzalabidi/agentreplay
-npx @anzalabidi/agentreplay validate ./examples/protocol/raw-trace.json --json
+npx --yes --package @anzalabidi/agentreplay agentreplay validate ./examples/protocol/raw-trace.json --json
 node ./bin/agentreplay.js demo
 node ./bin/agentreplay.js init ./my-agent-repo
 node ./bin/agentreplay.js inspect ./traces/billing-bad-run.json
