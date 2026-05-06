@@ -93,6 +93,18 @@ The fixture at [examples/protocol/raw-trace.json](../examples/protocol/raw-trace
 
 For LangGraph, wrap node-level tools or the state mutation functions they call. For OpenAI Agents and ADK-style tools, wrap the tool handler before it reaches the external API. For custom bots and webhook systems, record each outbound service call as a `tool_call`. For voice agents, record the intent text plus any downstream booking, ticket, CRM, email, or payment tool calls.
 
+Runnable examples:
+
+- [OpenAI Agents tool boundary](../examples/integrations/openai-agents-tool-boundary.js)
+- [LangGraph tool boundary](../examples/integrations/langgraph-tool-boundary.js)
+- [HTTP/webhook raw JSON trace](../examples/integrations/http-webhook-raw-json.js)
+
+To scaffold CI in an existing repo:
+
+```bash
+agentreplay init .
+```
+
 ## Where to start
 
 Use AgentReplay first on agents that mutate state: refunds, subscription changes, CRM updates, ticket escalations, inventory edits, approval workflows, and outbound communication. Pure research/chat agents can still use traces, but the value is highest when the agent can cause costly side effects.

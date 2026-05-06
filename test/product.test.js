@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { readFile, mkdtemp, rm } from "node:fs/promises";
+import { access, readFile, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import test from "node:test";
@@ -20,6 +20,9 @@ import {
 } from "../src/index.js";
 import { runDemo } from "../examples/billing-agent/demo.js";
 import { runCrmAdversaryDemo, runCrmPilot } from "../examples/crm-agent-workflow/demo.js";
+import { runHttpWebhookRawJsonExample } from "../examples/integrations/http-webhook-raw-json.js";
+import { runLangGraphBoundaryExample } from "../examples/integrations/langgraph-tool-boundary.js";
+import { runOpenAiAgentsBoundaryExample } from "../examples/integrations/openai-agents-tool-boundary.js";
 
 const execFileAsync = promisify(execFile);
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -118,6 +121,55 @@ test("hand-written raw JSON trace validates and gates without an SDK", async () 
 
   assert.equal(validateTrace(trace).valid, true);
   assert.equal(assertionSummary(evaluateAssertions(trace)).passed, true);
+});
+
+test("public integration examples generate traces that validate and gate", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "agentreplay-integrations-"));
+  try {
+    const examples = [
+      runOpenAiAgentsBoundaryExample({ tracePath: join(dir, "openai-agents.json") }),
+      runLangGraphBoundaryExample({ tracePath: join(dir, "langgraph.json") }),
+      runHttpWebhookRawJsonExample({ tracePath: join(dir, "http-webhook.json") })
+    ];
+    const traces = await Promise.all(examples);
+
+    for (const trace of traces) {
+      assert.equal(validateTrace(trace).valid, true);
+      assert.equal(assertionSummary(evaluateAssertions(trace)).passed, true);
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("trace protocol JSON Schema is valid JSON and names the protocol", async () => {
+  const schema = await readJsonFile(resolve(repoRoot, "docs/agentreplay.trace.v1.schema.json"));
+
+  assert.equal(schema.title, "AgentReplay trace v1");
+  assert.equal(schema.properties.schemaVersion.const, "agentreplay.trace.v1");
+  assert.equal(schema.$defs.toolCallEvent.allOf[1].required.includes("argHash"), true);
+});
+
+test("CLI init scaffolds traces and a GitHub Actions gate", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "agentreplay-init-"));
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      "./bin/agentreplay.js",
+      "init",
+      dir,
+      "--json"
+    ], { cwd: repoRoot });
+    const result = JSON.parse(stdout);
+
+    assert.equal(result.written.length, 4);
+    await access(join(dir, "traces/gates/.gitkeep"));
+    await access(join(dir, "traces/incidents/.gitkeep"));
+    const workflow = await readFile(join(dir, ".github/workflows/agentreplay.yml"), "utf8");
+    assert.equal(workflow.includes("npx agentreplay validate"), true);
+    assert.equal(workflow.includes("npx agentreplay gate"), true);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });
 
 test("public package surface has no private CRM pilot identifiers", async () => {

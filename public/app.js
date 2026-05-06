@@ -4,12 +4,14 @@ const emptyState = document.querySelector("#emptyState");
 const refresh = document.querySelector("#refresh");
 
 let selectedId = null;
+let traceSummaries = [];
 
 refresh.addEventListener("click", loadTraces);
 await loadTraces();
 
 async function loadTraces() {
   const traces = await fetchJson("/api/traces");
+  traceSummaries = traces;
   traceList.innerHTML = "";
 
   for (const trace of traces) {
@@ -40,6 +42,10 @@ async function selectTrace(traceId) {
     fetchJson(`/api/validate?id=${encodeURIComponent(traceId)}`)
   ]);
   const tools = trace.events.filter((event) => event.type === "tool_call");
+  const compareTarget = findCompareTarget(traceId);
+  const diff = compareTarget
+    ? await fetchJson(`/api/diff?left=${encodeURIComponent(compareTarget.traceId)}&right=${encodeURIComponent(traceId)}`)
+    : null;
 
   emptyState.classList.add("hidden");
   traceDetail.classList.remove("hidden");
@@ -58,6 +64,9 @@ async function selectTrace(traceId) {
 
     <div class="section-title">Tool Calls</div>
     ${tools.map(renderTool).join("")}
+
+    <div class="section-title">Nearest Diff</div>
+    ${renderDiff(diff, compareTarget)}
 
     <div class="section-title">Tool Manifest</div>
     <pre>${escapeHtml(JSON.stringify(trace.toolManifest ?? [], null, 2))}</pre>
@@ -86,6 +95,35 @@ function renderTool(tool, index) {
       }, null, 2))}</pre>
     </div>
   `;
+}
+
+function renderDiff(diff, compareTarget) {
+  if (!diff || !compareTarget) {
+    return `<div class="empty">No comparable pass/fail trace found for this project.</div>`;
+  }
+
+  return `
+    <div class="check">
+      <span class="badge ${diff.changed ? "fail" : "pass"}">${diff.changed ? "DIFF" : "SAME"}</span>
+      <strong>Compared with ${escapeHtml(compareTarget.traceId)}</strong>
+      <span class="meta">${diff.changes.length} change(s)</span>
+    </div>
+    <pre>${escapeHtml(JSON.stringify(diff.changes.slice(0, 8), null, 2))}</pre>
+  `;
+}
+
+function findCompareTarget(traceId) {
+  const selected = traceSummaries.find((trace) => trace.traceId === traceId);
+  if (!selected) {
+    return null;
+  }
+
+  return traceSummaries.find(
+    (trace) =>
+      trace.traceId !== traceId &&
+      trace.project === selected.project &&
+      trace.gatePassed !== selected.gatePassed
+  );
 }
 
 async function fetchJson(path) {

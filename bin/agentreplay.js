@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
@@ -31,6 +31,8 @@ try {
     await diff(args);
   } else if (command === "freeze") {
     await freeze(args);
+  } else if (command === "init") {
+    await init(args);
   } else if (command === "serve") {
     await serve(args);
   } else if (command === "demo") {
@@ -188,6 +190,95 @@ async function freeze(rawArgs) {
   console.log(`Frozen ${trace.traceId} at ${filePath}`);
 }
 
+async function init(rawArgs = []) {
+  const { args, json } = parseArgs(rawArgs);
+  const targetDir = resolve(args.find((arg) => !arg.startsWith("--")) ?? ".");
+  const force = args.includes("--force");
+  const files = [
+    {
+      path: resolve(targetDir, "traces/gates/.gitkeep"),
+      content: ""
+    },
+    {
+      path: resolve(targetDir, "traces/incidents/.gitkeep"),
+      content: ""
+    },
+    {
+      path: resolve(targetDir, "traces/README.md"),
+      content: `# AgentReplay traces
+
+Put release-blocking traces in \`traces/gates\`.
+
+Suggested flow:
+
+1. Save production failures or adversarial fixtures as \`agentreplay.trace.v1\` JSON.
+2. Validate traces with \`agentreplay validate <trace.json> --json\`.
+3. Gate release-critical traces with \`agentreplay gate <trace.json> --json\`.
+4. Keep exploratory or failing incident captures under \`traces/incidents\` until they are fixed.
+`
+    },
+    {
+      path: resolve(targetDir, ".github/workflows/agentreplay.yml"),
+      content: `name: AgentReplay
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate and gate traces
+        shell: bash
+        run: |
+          shopt -s nullglob
+          traces=(traces/gates/*.json)
+          if [ \${#traces[@]} -eq 0 ]; then
+            echo "No release-gate traces found in traces/gates"
+            exit 0
+          fi
+          for trace in "\${traces[@]}"; do
+            npx agentreplay validate "$trace" --json
+            npx agentreplay gate "$trace" --json
+          done
+`
+    }
+  ];
+  const written = [];
+  const skipped = [];
+
+  for (const file of files) {
+    await mkdir(dirname(file.path), { recursive: true });
+    try {
+      await writeFile(file.path, file.content, { flag: force ? "w" : "wx" });
+      written.push(file.path);
+    } catch (error) {
+      if (error.code !== "EEXIST") {
+        throw error;
+      }
+      skipped.push(file.path);
+    }
+  }
+
+  const result = { targetDir, written, skipped };
+  if (json) {
+    printJson(result);
+    return;
+  }
+
+  written.forEach((file) => console.log(`created ${file}`));
+  skipped.forEach((file) => console.log(`exists  ${file}`));
+  if (skipped.length && !force) {
+    console.log("Use --force to overwrite existing files.");
+  }
+}
+
 async function serve(rawArgs) {
   const { args } = parseArgs(rawArgs);
   const port = Number(readOption(args, "--port", "4177"));
@@ -252,6 +343,7 @@ Usage:
   agentreplay gate <trace.json> [--json]
   agentreplay diff <left-trace.json> <right-trace.json> [--json]
   agentreplay freeze <trace.json> [--json]
+  agentreplay init [directory] [--force] [--json]
   agentreplay serve [--port 4177]
 `);
 }

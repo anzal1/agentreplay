@@ -1,0 +1,288 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentreplay.dev/schemas/agentreplay.trace.v1.schema.json",
+  "title": "AgentReplay trace v1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schemaVersion",
+    "traceId",
+    "project",
+    "agent",
+    "startedAt",
+    "endedAt",
+    "events"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "agentreplay.trace.v1"
+    },
+    "traceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent": {
+      "type": "object"
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "endedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sourceTraceId": {
+      "type": "string"
+    },
+    "replayMismatches": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "toolManifest": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "inputSchema": {
+            "type": "object"
+          },
+          "outputSchema": {
+            "type": "object"
+          },
+          "hasSnapshot": {
+            "type": "boolean"
+          },
+          "hasDiff": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/userInputEvent" },
+          { "$ref": "#/$defs/toolCallEvent" },
+          { "$ref": "#/$defs/finalOutputEvent" },
+          { "$ref": "#/$defs/noteEvent" }
+        ]
+      }
+    },
+    "expectedOutcome": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "assertions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assertion"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "$defs": {
+    "baseEvent": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "type", "ts"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "userInputEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/baseEvent" },
+        {
+          "type": "object",
+          "required": ["input"],
+          "properties": {
+            "type": { "const": "user_input" }
+          }
+        }
+      ]
+    },
+    "toolCallEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/baseEvent" },
+        {
+          "type": "object",
+          "required": ["tool", "args", "argHash", "responseHash"],
+          "properties": {
+            "type": { "const": "tool_call" },
+            "tool": {
+              "type": "string",
+              "minLength": 1
+            },
+            "args": {
+              "type": "object"
+            },
+            "argHash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "responseHash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "approval": {
+              "type": ["object", "null"],
+              "additionalProperties": true,
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "by": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            },
+            "preState": {},
+            "postState": {},
+            "sideEffects": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["type"],
+                "additionalProperties": true,
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "durationMs": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      ]
+    },
+    "finalOutputEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/baseEvent" },
+        {
+          "type": "object",
+          "required": ["output"],
+          "properties": {
+            "type": { "const": "final_output" }
+          }
+        }
+      ]
+    },
+    "noteEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/baseEvent" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "note" }
+          }
+        }
+      ]
+    },
+    "assertion": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "enum": [
+            "tool_called",
+            "tool_not_called",
+            "requires_approval",
+            "tool_order",
+            "arg_equals",
+            "arg_matches",
+            "arg_not_matches",
+            "response_equals",
+            "max_tool_calls",
+            "side_effect_exists",
+            "side_effect_count",
+            "no_replay_mismatches",
+            "redaction_applied"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "before": {
+          "type": "string"
+        },
+        "after": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "flags": {
+          "type": "string"
+        },
+        "max": {
+          "type": "number"
+        },
+        "count": {
+          "type": "number"
+        },
+        "operator": {
+          "enum": ["eq", "neq", "gt", "gte", "lt", "lte"]
+        },
+        "sideEffectType": {
+          "type": "string"
+        },
+        "patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "message": {
+          "type": "string"
+        },
+        "passMessage": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

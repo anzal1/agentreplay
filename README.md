@@ -32,6 +32,7 @@ The resulting trace becomes a regression artifact that can run in CI.
 npm test
 npm run demo
 node ./bin/agentreplay.js demo
+node ./bin/agentreplay.js init ./my-agent-repo
 node ./bin/agentreplay.js inspect ./traces/billing-bad-run.json
 node ./bin/agentreplay.js gate ./traces/billing-bad-run.json
 node ./bin/agentreplay.js gate ./traces/billing-fixed-run.json
@@ -61,6 +62,12 @@ Conformance examples:
 - [sdk/python/examples/conformance.py](./sdk/python/examples/conformance.py)
 - [sdk/go/examples/conformance/main.go](./sdk/go/examples/conformance/main.go)
 - [examples/protocol/raw-trace.json](./examples/protocol/raw-trace.json)
+
+Framework boundary examples:
+
+- [examples/integrations/openai-agents-tool-boundary.js](./examples/integrations/openai-agents-tool-boundary.js)
+- [examples/integrations/langgraph-tool-boundary.js](./examples/integrations/langgraph-tool-boundary.js)
+- [examples/integrations/http-webhook-raw-json.js](./examples/integrations/http-webhook-raw-json.js)
 
 ## Node SDK
 
@@ -116,9 +123,12 @@ agentreplay inspect <trace.json> [--json]
 agentreplay validate <trace.json> [--json]
 agentreplay gate <trace.json> [--json]
 agentreplay diff <baseline.json> <candidate.json> [--json]
+agentreplay init [directory] [--force] [--json]
 ```
 
 Use `--json` in CI so failures can be stored as build artifacts instead of scraped from terminal text.
+
+Use `agentreplay init` to scaffold `traces/gates`, `traces/incidents`, and a GitHub Actions workflow that validates and gates release-critical traces.
 
 ## Current proof
 

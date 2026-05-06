@@ -2,6 +2,8 @@
 
 AgentReplay is language-neutral at the trace boundary. Any bot, agent framework, or service can emit `agentreplay.trace.v1` JSON and use the Node reference CLI for validation, gates, diffs, and the local console.
 
+The machine-readable JSON Schema lives at [agentreplay.trace.v1.schema.json](./agentreplay.trace.v1.schema.json). The schema defines the portable shape; the CLI validator also enforces AgentReplay-specific invariants such as stable hash equality, duplicate event IDs, and assertion field requirements.
+
 ## Top-level trace
 
 Required fields:
